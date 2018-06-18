@@ -42,16 +42,22 @@ public class ExperimentController : MonoBehaviour {
     private TrialInfoData m_TrialInfoData;
     private SpawnPeripheral m_SpawnPeriperal;
     private FlickerManager m_FlickerManager;
+    private TrialNumber m_TrialNumber;
 
     // Gameobject references
+    public GameObject trialCounterRef;
     public GameObject inputGameobjectRef;
     public InputField inputRef;
-    private GameObject peripheralOccluderRef;
+    private List<GameObject> occluderRef = new List<GameObject>();
     private GameObject peripheralDisplayRef;
     private GameObject fixationObjectRef;
+    private GameObject rightFlicker;
+    private GameObject leftFlicker;
 
     // Temporary data storage list
+    private string peripheralDirection;
     private int targetCount;
+    private List<float> targetApperanceTime = new List<float>();
     private int resp;
     
 	void Start () {
@@ -64,18 +70,24 @@ public class ExperimentController : MonoBehaviour {
         m_FlickerManager = this.GetComponent<FlickerManager>();
 
         // Setup peripheral display references
-        peripheralOccluderRef = GameObject.Find("Occluder");
+        occluderRef.AddRange(GameObject.FindGameObjectsWithTag("Occluder"));
         peripheralDisplayRef = GameObject.Find("Peripheral Display");
         m_SpawnPeriperal = peripheralDisplayRef.GetComponent<SpawnPeripheral>();
         
         // Setup miscellaneous gameobject references
         fixationObjectRef = GameObject.Find("FixationCross");
-        inputGameobjectRef.SetActive(false);    // hide text input field
+        m_TrialNumber = trialCounterRef.GetComponent<TrialNumber>();
+        trialCounterRef.SetActive(false);                           // hide trial counter
+        inputGameobjectRef.SetActive(false);                        // hide text input field
+
+        // Find flicker objects
+        rightFlicker = GameObject.Find("RightMotion_Flicker");
+        leftFlicker = GameObject.Find("LeftMotion_Flicker");
     }
 	
 	void Update () {
-        if (!searchDone)
-            StartPeripheral();                  // Keep peripheral dots spawning and moving
+        if (e_cueCall && !searchDone)
+            StartPeripheral(peripheralDirection);                   // keep peripheral dots spawning and moving
 
         // Calls the different stages of the trial
         if (!cueDone && !fixationDone && !searchDone && !responseDone)
@@ -95,20 +107,32 @@ public class ExperimentController : MonoBehaviour {
         // Display the trial's cue
         if (!e_cueCall)
         {
-            m_ExpCue.ShowCue();                     // spawn cue for trial
-            fixationObjectRef.SetActive(false);     // hide fixation cross
-            peripheralOccluderRef.SetActive(true);  // activate occluder as peripheral sets up
+            m_ExpCue.ShowCue();                             // spawn cue for trial
+            fixationObjectRef.SetActive(false);             // hide fixation cross
 
-            m_FlickerManager.SetFlickerFreq();      // set peripheral frequencies for trial
-            m_FlickerManager.StartAllFlicker();     // start flickering elements
+            // activate occluders as peripheral sets up
+            for (int i = 0; i < occluderRef.Count; i++)
+            {
+                occluderRef[i].SetActive(true);             
+            }
+
+            m_FlickerManager.SetFlickerFreq();              // set peripheral frequencies for trial
+            m_FlickerManager.StartAllFlicker();             // start flickering elements
+
+            peripheralDirection = SetupPeripheral();        // set peripheral apperance as right or left
+
+            trialCounterRef.SetActive(true);                // show trial counter
+            m_TrialNumber.UpdateTrialNumber(trialNumber);   // update trial number
 
             e_cueCall = true;
         }
-
+        
         // Keep track of time for when minimum cue phase reached
         generalTimer += Time.deltaTime;
         if (generalTimer >= cueTime && Input.GetKeyDown(KeyCode.KeypadEnter))
         {
+            trialCounterRef.SetActive(false);               // hide trial counter
+
             cueDone = true;
             generalTimer = 0f;
             Debug.Log("cuephase done");
@@ -142,29 +166,37 @@ public class ExperimentController : MonoBehaviour {
         // Start the central task
         if (!e_trialCall)
         {
-            peripheralOccluderRef.SetActive(false);     // hide occluder to do task
-            m_ExpTrial.SpawnShapes();                   // spawn center shapes
+            // deactivate occluders as peripheral sets up
+            for (int i = 0; i < occluderRef.Count; i++)
+            {
+                occluderRef[i].SetActive(false);
+            }
+
+            m_ExpTrial.SpawnShapes();                                           // spawn center shapes
 
             e_trialCall = true;
         }
 
+        DestroyExtra("DistractorClone", m_ExpTrial.totalNum);                   // constantly check the number of items are constant
+
         // If target hidden and buffer of 500 ms passses
-        if (!e_targetCall && targetBufferTimer > 1.0f)
+        if (!e_targetCall && targetBufferTimer > 1.5f)
         {
-            int n = Random.Range(0, 20);                // continue randomly selecting numbers until target shown
+            int n = Random.Range(0, 100);                                        // continue randomly selecting numbers until target shown
 
             // If target to appear
             if (n == 0)
             {
-                bool finishedShowMethod = m_ExpTrial.ShowTarget();                // destroy and replace distractors with targets
+                targetApperanceTime.Add(generalTimer);
+                bool finishedShowMethod = m_ExpTrial.ShowTarget();              // destroy and replace distractors with targets
 
-                // make sure ShowTarget method finished running
+                // Make sure ShowTarget method finished running
                 if(finishedShowMethod)
                 {
-                    targetCount++;                          // increase target count
+                    targetCount++;                                              // increase target count
 
-                    targetShowTimer = 0;                    // reset targetShowTimer to 0
-                    e_targetCall = true;                    // signal target not hidden (target shown)
+                    targetShowTimer = 0;                                        // reset targetShowTimer to 0
+                    e_targetCall = true;                                        // signal target not hidden (target shown)
                     Debug.Log("targets shown");
                 }
             }
@@ -175,20 +207,20 @@ public class ExperimentController : MonoBehaviour {
         {
             bool finishedHideMethod = m_ExpTrial.HideTarget();
 
-            // make sure HideTarget method finished running
+            // Make sure HideTarget method finished running
             if(finishedHideMethod)
             {
-                targetBufferTimer = 0;                      // reset targetBufferTimer to 0
-                e_targetCall = false;                       // signal target hidden
+                targetBufferTimer = 0;                                          // reset targetBufferTimer to 0
+                e_targetCall = false;                                           // signal target hidden
             }
         }
 
         // End trial when trial time reaches max
         if (e_trialCall && generalTimer > trialTime)
         {
-            m_FlickerManager.StopAllFlicker();          // stop flickering elements
+            m_FlickerManager.StopAllFlicker();                                  // stop flickering elements
 
-            generalTimer = 0;                           // reset the general timer
+            generalTimer = 0;                                                   // reset the general timer
             searchDone = true;
             Debug.Log("searchphase done");
         }
@@ -218,11 +250,14 @@ public class ExperimentController : MonoBehaviour {
             }
             else if (inputRef.text != "")
             {
-                resp = int.Parse(inputRef.text);        // convert string input to int
-                m_TrialInfoData.WriteData(targetCount, resp);        // store the trial's target and flicker info into the trialinfo csv
+                resp = int.Parse(inputRef.text);                                        // convert string input to int
 
-                inputRef.DeactivateInputField();        // deactivate text input field
-                inputGameobjectRef.SetActive(false);    // hide text input field
+                // store the trial's info into the trialinfo csv
+                m_TrialInfoData.WriteData(peripheralDirection, 
+                    targetCount, resp, targetApperanceTime);                            
+
+                inputRef.DeactivateInputField();                                        // deactivate text input field
+                inputGameobjectRef.SetActive(false);                                    // hide text input field
                 Debug.Log("input is " + resp);
 
                 responseDone = true;
@@ -271,22 +306,114 @@ public class ExperimentController : MonoBehaviour {
         generalTimer = 0;
         targetBufferTimer = 0;
         targetCount = 0;
+
+        // Clear lists
+        targetApperanceTime.Clear();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Appendix Methods
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    void StartPeripheral()
+    void StartPeripheral(string direction)
     {
         peripheralTimer += Time.deltaTime;
 
         if (peripheralTimer > timeBetweenPeripheralSpawn)
         {
-            m_SpawnPeriperal.SpawnFromBothColumns();
+            if (direction == "Right")
+                m_SpawnPeriperal.SpawnFromRightColumns();
+            if (direction == "Left")
+                m_SpawnPeriperal.SpawnFromLeftColumns();
+            if (direction == "Null")
+                m_SpawnPeriperal.SpawnFromBothColumns();
             peripheralTimer = 0;
         }
     }
 
+    string SetupPeripheral()
+    {
+        // get target direction for current trial
+        bool targDirection = m_ExpCue.activeTarget.GetComponent<TargetMotion>().moveRight;
+
+        // get flicker frequencies
+        float rightFreq = rightFlicker.GetComponent<FlickerMaterial>().Frequency;
+        float leftFreq = leftFlicker.GetComponent<FlickerMaterial>().Frequency;
+
+        // access peripheral lists
+        List<bool> right12 = m_ExpSetup.right12peripheralTrials;
+        List<bool> right18 = m_ExpSetup.right18peripheralTrials;
+        List<bool> left12 = m_ExpSetup.left12peripheralTrials;
+        List<bool> left18 = m_ExpSetup.left18peripheralTrials;
+
+        string peripheralSetting = "Null";
+        // if rightward motion
+        if (targDirection)
+        {
+            // if rightward motion set to 12.5Hz
+            if (rightFreq == 12.5f)
+            {
+                // select one of the peripheral flicker trials at random
+                int n = Random.Range(0, right12.Count);
+                
+                if (right12[n] == true)
+                    peripheralSetting = "Right";
+                else if (right12[n] == false)
+                    peripheralSetting = "Left";
+
+                // remove used trial from list
+                right12.RemoveAt(n);
+            }
+            // if rightward motion set to 18.75Hz
+            else if (rightFreq == 18.75f)
+            {
+                // select one of the peripheral flicker trials at random
+                int n = Random.Range(0, right18.Count);
+
+                if (right18[n] == true)
+                    peripheralSetting = "Right";
+                else if (right18[n] == false)
+                    peripheralSetting = "Left";
+
+                // remove used trial from list
+                right18.RemoveAt(n);
+            }
+        }
+        // if leftward motion
+        else if (!targDirection)
+        {
+            // if leftward motion set to 12.5Hz
+            if (leftFreq == 12.5f)
+            {
+                // select one of the peripheral flicker trials at random
+                int n = Random.Range(0, left12.Count);
+
+                if (left12[n] == true)
+                    peripheralSetting = "Right";
+                else if (left12[n] == false)
+                    peripheralSetting = "Left";
+
+                // remove used trial from list
+                left12.RemoveAt(n);
+            }
+            // if leftward motion set to 18.75Hz
+            else if (leftFreq == 18.75f)
+            {
+                // select one of the peripheral flicker trials at random
+                int n = Random.Range(0, left18.Count);
+
+                if (left18[n] == true)
+                    peripheralSetting = "Right";
+                else if (left18[n] == false)
+                    peripheralSetting = "Left";
+
+                // remove used trial from list
+                left18.RemoveAt(n);
+            }
+        }
+
+        return peripheralSetting;
+    }
+    
     private void DestroyClones(string taglabel)
     {
         // Find all the cube clones and destroy them
@@ -295,5 +422,16 @@ public class ExperimentController : MonoBehaviour {
         {
             Destroy(arrayClones[i]);
         }
+    }
+
+    private void DestroyExtra(string taglabel, int maxNum)
+    {
+        // Find all the same object
+        List<GameObject> listClones = new List<GameObject>();
+        listClones.AddRange(GameObject.FindGameObjectsWithTag(taglabel));
+        Debug.Log(listClones.Count);
+
+        if (listClones.Count > maxNum)
+            Destroy(listClones[0]);
     }
 }

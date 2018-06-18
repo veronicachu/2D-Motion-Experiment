@@ -5,10 +5,14 @@ using UnityEngine;
 public class ExpTrial : MonoBehaviour
 {
     // boundary of spawn area (2D)
-    [HideInInspector] public float xMin = -2f;
-    [HideInInspector] public float xMax = 2f;
-    [HideInInspector] public float yMin = -2f;
-    [HideInInspector] public float yMax = 2f;
+    //[HideInInspector]
+    public float xMin;
+    //[HideInInspector]
+    public float xMax;
+    //[HideInInspector]
+    public float yMin;
+    //[HideInInspector]
+    public float yMax;
 
     public int targetNum;                   // number of target items
     public int totalNum;                    // number of distractor items

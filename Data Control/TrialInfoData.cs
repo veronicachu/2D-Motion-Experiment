@@ -30,8 +30,9 @@ public class TrialInfoData : MonoBehaviour {
         //Debug.Log(expPath);
 
         // Write first line with data information
-        string newLine = string.Format("{0},{1},{2},{3},{4}",
-            "Target Direction", "Right Freq", "Left Freq", "Number Targets", "Response");
+        string newLine = string.Format("{0},{1},{2},{3},{4},{5},{6}",
+            "Target Direction", "Right Freq", "Left Freq", "Peripheral Direction", 
+            "Number Targets", "Response","Target Times");
         csv.AppendLine(newLine);
     }
 
@@ -45,7 +46,7 @@ public class TrialInfoData : MonoBehaviour {
                              System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
     }
 
-    public void WriteData(int nTargets, int response)
+    public void WriteData(string peripheralDirection, int nTargets, int response, List<float> targetTime)
     {
         // Collects target direction
         string targDirection = expCueRef.activeTarget.name;
@@ -56,8 +57,13 @@ public class TrialInfoData : MonoBehaviour {
         string leftFreq = leftFlickerRef.Frequency.ToString();
         
         // Writes a line with target and frequency information
-        string newLine = string.Format("{0},{1},{2},{3},{4}",
-            targDirection, rightFreq, leftFreq, nTargets, response);
+        string newLine = string.Format("{0},{1},{2},{3},{4},{5}",
+            targDirection, rightFreq, leftFreq, peripheralDirection, nTargets, response);
+        for (int i = 0; i < targetTime.Count; i++)
+        {
+            newLine = newLine + "," + targetTime[i].ToString();
+        }
+
         csv.AppendLine(newLine);
     }
 

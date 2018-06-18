@@ -31,7 +31,12 @@ public class ExpSetup : MonoBehaviour
     public List<float> rightfreqTrials = new List<float>();
     [HideInInspector]
     public List<float> leftfreqTrials = new List<float>();
-    
+
+    [HideInInspector] public List<bool> right12peripheralTrials = new List<bool>();
+    [HideInInspector] public List<bool> right18peripheralTrials = new List<bool>();
+    [HideInInspector] public List<bool> left12peripheralTrials = new List<bool>();
+    [HideInInspector] public List<bool> left18peripheralTrials = new List<bool>();
+
     public void Awake ()
     {
         // this loop creates the motion targets for trials
@@ -50,6 +55,22 @@ public class ExpSetup : MonoBehaviour
         {
             rightfreqTrials.AddRange(frequencies);
             leftfreqTrials.AddRange(frequencies);
+        }
+
+        // this loop creates the peripheral direction for trials
+        for (int i = 0; i < totalTrials / 8; i++)
+        {
+            right12peripheralTrials.Add(true);
+            right12peripheralTrials.Add(false);
+
+            right18peripheralTrials.Add(true);
+            right18peripheralTrials.Add(false);
+
+            left12peripheralTrials.Add(true);
+            left12peripheralTrials.Add(false);
+
+            left18peripheralTrials.Add(true);
+            left18peripheralTrials.Add(false);
         }
 
         loadComplete = true;
