@@ -14,7 +14,7 @@ public class ExpTrial : MonoBehaviour
     //[HideInInspector]
     public float yMax;
 
-    public int targetNum;                   // number of target items
+    //public int targetNum;                   // number of target items
     public int totalNum;                    // number of distractor items
 
     public GameObject rightMotion;          // right motion object
@@ -66,7 +66,7 @@ public class ExpTrial : MonoBehaviour
         newObject.GetComponent<DestroyReplace>().enabled = true;
     }
 
-    public bool ShowTarget()
+    public bool ShowTarget(int targetNum)
     {
         bool finishedRunning = false;
 
@@ -101,7 +101,7 @@ public class ExpTrial : MonoBehaviour
         return finishedRunning;
     }
 
-    public bool HideTarget()
+    public bool HideTarget(int targetNum)
     {
         bool finishedRunning = false;
 

@@ -12,9 +12,9 @@ public class TrialNumber : MonoBehaviour {
         UItext = textObject.GetComponent<Text>();
     }
 
-	public void UpdateTrialNumber (int trialnum)
+	public void UpdateTrialNumber (int trialnum, int totalnum)
     {
-        int trialnumtemp = trialnum + 1;
-        UItext.text = "Trial " + trialnumtemp.ToString() + " of 32";
+        int trialnumtemp = trialnum + 2;
+        UItext.text = "Trial " + trialnumtemp.ToString() + " of " + totalnum.ToString();
 	}
 }

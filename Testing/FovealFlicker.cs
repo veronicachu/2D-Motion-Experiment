@@ -5,6 +5,8 @@ using UnityEngine;
 public class FovealFlicker : MonoBehaviour {
 
     public float timeBetweenPeripheralSpawn;
+    public bool bothSideSpawn;
+
     private float peripheralTimer;
 
     private SpawnPeripheral m_SpawnPeriperal;
@@ -33,9 +35,15 @@ public class FovealFlicker : MonoBehaviour {
     {
         peripheralTimer += Time.deltaTime;
 
-        if (peripheralTimer > timeBetweenPeripheralSpawn)
+        if (peripheralTimer > timeBetweenPeripheralSpawn && bothSideSpawn)
         {
             m_SpawnPeriperal.SpawnFromBothColumns();
+            peripheralTimer = 0;
+        }
+
+        if (peripheralTimer > timeBetweenPeripheralSpawn && !bothSideSpawn)
+        {
+            m_SpawnPeriperal.SpawnLeftwardMotion();
             peripheralTimer = 0;
         }
     }

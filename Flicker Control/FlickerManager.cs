@@ -60,7 +60,7 @@ public class FlickerManager : MonoBehaviour
 
             // set right motion flicker frequency
             rightFlicker.GetComponent<FlickerMaterial>().Frequency = rightfreqTrialsTemp[n];
-            photocell.GetComponent<FlickerMaterial>().Frequency = rightfreqTrialsTemp[n];
+            //photocell.GetComponent<FlickerMaterial>().Frequency = rightfreqTrialsTemp[n];
 
             // remove used frequency from the list of possible frequencies
             for (int i = 0; i < tempFreqList.Count; i++)
@@ -85,7 +85,7 @@ public class FlickerManager : MonoBehaviour
 
             // set left motion flicker frequency
             leftFlicker.GetComponent<FlickerMaterial>().Frequency = leftfreqTrialsTemp[n];
-            photocell.GetComponent<FlickerMaterial>().Frequency = leftfreqTrialsTemp[n];
+            //photocell.GetComponent<FlickerMaterial>().Frequency = leftfreqTrialsTemp[n];
             
             // remove used frequency from the list of possible frequencies
             for (int i = 0; i < tempFreqList.Count; i++)

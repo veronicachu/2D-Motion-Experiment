@@ -7,7 +7,7 @@ public class TargetMotion : MonoBehaviour {
     public bool moveRight;
     public float velocity;
     
-	void Update () {
+    void Update () {
         if (moveRight)
         {
             transform.Translate(Vector3.right * Time.deltaTime * velocity);

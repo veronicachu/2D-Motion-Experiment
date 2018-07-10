@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class SpawnPeripheral : MonoBehaviour {
 
-    public GameObject rightObject;
-    public GameObject leftObject;
+    public GameObject leftwardObject;
+    public GameObject rightwardObject;
 
     public int rightNRows;
     public int leftNRows;
@@ -33,27 +33,27 @@ public class SpawnPeripheral : MonoBehaviour {
         rightZ = rightWaypoint.transform.position.z;
     }
 
-    public void SpawnFromRightColumns()
+    public void SpawnLeftwardMotion()
     {
         // leftward from right side
         for (int i = 0; i < rightNRows; i++)
         {
             float rightY = Random.Range(lowestY, highestY);
 
-            GameObject newObject = Instantiate(rightObject, new Vector3(rightX, rightY, rightZ), rightObject.transform.rotation);
+            GameObject newObject = Instantiate(leftwardObject, new Vector3(rightX, rightY, rightZ), leftwardObject.transform.rotation);
             newObject.tag = "FlickerClone";
             newObject.transform.parent = gameObject.transform;
         }
     }
 
-    public void SpawnFromLeftColumns()
+    public void SpawnRightwardMotion()
     {
         // rightward motion from left side
         for (int i = 0; i < leftNRows; i++)
         {
             float leftY = Random.Range(lowestY, highestY);
 
-            GameObject newObject = Instantiate(leftObject, new Vector3(leftX, leftY, leftZ), leftObject.transform.rotation);
+            GameObject newObject = Instantiate(rightwardObject, new Vector3(leftX, leftY, leftZ), rightwardObject.transform.rotation);
             newObject.tag = "FlickerClone";
             newObject.transform.parent = gameObject.transform;
         }
@@ -66,7 +66,7 @@ public class SpawnPeripheral : MonoBehaviour {
         {
             float leftY = Random.Range(lowestY, highestY);
 
-            GameObject newObject = Instantiate(leftObject, new Vector3(leftX,leftY,leftZ), leftObject.transform.rotation);
+            GameObject newObject = Instantiate(rightwardObject, new Vector3(leftX,leftY,leftZ), rightwardObject.transform.rotation);
             newObject.tag = "FlickerClone";
             newObject.transform.parent = gameObject.transform;
         }
@@ -76,7 +76,7 @@ public class SpawnPeripheral : MonoBehaviour {
         {
             float rightY = Random.Range(lowestY, highestY);
 
-            GameObject newObject = Instantiate(rightObject, new Vector3(rightX,rightY,rightZ), rightObject.transform.rotation);
+            GameObject newObject = Instantiate(leftwardObject, new Vector3(rightX,rightY,rightZ), leftwardObject.transform.rotation);
             newObject.tag = "FlickerClone";
             newObject.transform.parent = gameObject.transform;
         }

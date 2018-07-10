@@ -9,7 +9,7 @@ public class DistractorMotion : MonoBehaviour {
     public Vector3 direction;
     public float magnitude;
     
-	void Update () {
+    void Update () {
         
         transform.Translate(direction * Time.deltaTime * velocity * 1/magnitude);
     }
