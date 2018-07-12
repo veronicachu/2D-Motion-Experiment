@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class ExperimentController : MonoBehaviour
 {
+    #region Setup variables
     // Changeable variables
     public float cueTime;
     public float fixationTime;
@@ -58,24 +59,28 @@ public class ExperimentController : MonoBehaviour
     private AdjustCoherence m_AdjustCoherence;
 
     // Gameobject references
-    public GameObject trialCounterRef;
-    public GameObject inputGameobjectRef;
-    public InputField inputRef;
-    public GameObject feedbackGameobjectRef;
-    public Text feedbackRef;
     private List<GameObject> occluderRef = new List<GameObject>();
     private GameObject peripheralDisplayRef;
     private GameObject fixationObjectRef;
+    private GameObject trialCounterRef;
+    private GameObject inputGameobjectRef;
+    //private GameObject feedbackGameobjectRef;
+    private GameObject instructionsRef;
     private GameObject coherenceManagerRef;
+
+    // UI references 
+    public InputField inputRef;
+    public Text feedbackRef;
 
     // Temporary data storage list
     private string peripheralDirection;
-    public int targetNum;
+    public int totalNum;
     private int targetCount;
     private List<float> targetApperanceTime = new List<float>();
     private int resp;
     private int numCorrect = 0;
-    
+    #endregion
+
     void Start()
     {
         // Setup script references
@@ -92,55 +97,64 @@ public class ExperimentController : MonoBehaviour
         peripheralDisplayRef = GameObject.Find("Peripheral Display");
         m_SpawnPeriperal = peripheralDisplayRef.GetComponent<SpawnPeripheral>();
 
-        // Setup miscellaneous gameobject references
+        // Setup fixation gameobject reference
         fixationObjectRef = GameObject.Find("FixationCross");
 
-        coherenceManagerRef = GameObject.Find("CoherenceManager");
-        if (coherenceManagerRef != null)
-            m_AdjustCoherence = coherenceManagerRef.GetComponent<AdjustCoherence>();
-        
+        // Setup trial counter references
         trialCounterRef = GameObject.Find("TrialCounter");
         m_TrialNumber = trialCounterRef.GetComponent<TrialNumber>();
         trialCounterRef.SetActive(false);                           // hide trial counter
 
+        // Setup input field references
         inputGameobjectRef = GameObject.Find("InputField");
         inputGameobjectRef.SetActive(false);                        // hide text input field
 
-        feedbackGameobjectRef = GameObject.Find("Feedback");        
-        feedbackGameobjectRef.SetActive(false);                     // hide feedback object
+        //// Setup feedback references
+        //feedbackGameobjectRef = GameObject.Find("Feedback");        
+        //feedbackGameobjectRef.SetActive(false);                     // hide feedback object
 
+        // Setup instruction references
+        instructionsRef = GameObject.Find("Instructions");
+
+        // Setup coherence manager references
+        coherenceManagerRef = GameObject.Find("CoherenceManager");
+        if (coherenceManagerRef != null)
+            m_AdjustCoherence = coherenceManagerRef.GetComponent<AdjustCoherence>();
+
+        // Adjust coherence level for current subject using calibration data
         if (adjustCoherence)
-            targetNum = m_AdjustCoherence.coherenceNum;
-        else if (!adjustCoherence && coherenceManagerRef != null)
+            totalNum = m_AdjustCoherence.coherenceNum;
+        else if (!adjustCoherence && coherenceManagerRef != null)   // **hard coded to grab last 10 coherence numbers**
         {
             int lastIndx = m_AdjustCoherence.numRecord.Count - 1;
             int avgNum = 0;
-            for (int i = lastIndx; i > lastIndx-10; i--)
+            for (int i = lastIndx; i > lastIndx - 10; i--)
             {
                 avgNum = m_AdjustCoherence.numRecord[i] + avgNum;
             }
             avgNum = avgNum / 10;
 
-            targetNum = avgNum;
+            totalNum = avgNum;
         }
         else
         {
-            targetNum = 10;
+            totalNum = 50;
         }
-
-        //cueTime = cueTime * Time.timeScale;
-        //fixationTime = fixationTime * Time.timeScale;
-        //trialTime = trialTime * Time.timeScale;
-        //targetTime = targetTime * Time.timeScale;
-        //timeBetweenPeripheralSpawn = timeBetweenPeripheralSpawn * Time.timeScale;
     }
 
     void Update()
     {
         // Allow time to setup recording
-        if (trialNumber == 0 && Input.GetKeyDown(KeyCode.Space))
+        if (!recordingSetupDone)
         {
-            recordingSetupDone = true;
+            fixationObjectRef.SetActive(false);         // hide fixation cross
+            instructionsRef.SetActive(true);            // show wait instructions
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                instructionsRef.SetActive(false);                           // hide instructions text
+                recordingSetupDone = true;
+            }
         }
 
         // Once recording setup, then start experiment
@@ -161,10 +175,9 @@ public class ExperimentController : MonoBehaviour
                 ResponsePhase();
             if (cueDone && fixationDone && searchDone && responseDone)
                 TrialUpdate();
-            
         }
     }
-    
+
     void CuePhase()
     {
         // Display the trial's cue
@@ -183,7 +196,7 @@ public class ExperimentController : MonoBehaviour
             m_FlickerManager.SetFlickerFreq();                          // set peripheral frequencies for trial
             peripheralDirection = m_ExpPeripheral.SetupPeripheral();    // set peripheral apperance as right or left
             m_FlickerManager.StartAllFlicker();                         // start flickering elements
-            
+
             e_cueCall = true;
         }
 
@@ -192,7 +205,7 @@ public class ExperimentController : MonoBehaviour
         if (generalTimer >= cueTime)
         {
             Time.timeScale = 1;                             // reset the speed to one
-            
+
             cueDone = true;
             generalTimer = 0f;
             Debug.Log("cuephase done");
@@ -240,24 +253,25 @@ public class ExperimentController : MonoBehaviour
                 occluderRef[i].SetActive(false);
             }
 
-            m_ExpTrial.SpawnShapes();                                           // spawn center shapes
+
+            m_ExpTrial.SpawnShapes(totalNum);                                           // spawn center shapes
 
             trialStartMarker = 1;                                               // set LSL trialStartMarker as 1
             e_trialCall = true;
         }
-        
-        DestroyExtra("DistractorClone", m_ExpTrial.totalNum);                   // constantly check the number of items are constant
+
+        DestroyExtra("DistractorClone", totalNum);                   // constantly check the number of items are constant
 
         // If target hidden and buffer of 500 ms passses
         if (!e_targetCall && targetBufferTimer > targetBuffer * Time.timeScale)
         {
-            int n = Random.Range(0, 100);                                        // continue randomly selecting numbers until target shown
+            int n = Random.Range(0, 25);                                        // continue randomly selecting numbers until target shown
 
             // If target to appear
             if (n == 0)
             {
                 targetApperanceTime.Add(generalTimer);
-                bool finishedShowMethod = m_ExpTrial.ShowTarget(targetNum);              // destroy and replace distractors with targets
+                bool finishedShowMethod = m_ExpTrial.ShowTarget();              // destroy and replace distractors with targets
 
                 // Make sure ShowTarget method finished running
                 if (finishedShowMethod)
@@ -274,7 +288,7 @@ public class ExperimentController : MonoBehaviour
         // If target time has reached max time
         if (e_targetCall && targetShowTimer > targetTime)
         {
-            bool finishedHideMethod = m_ExpTrial.HideTarget(targetNum);
+            bool finishedHideMethod = m_ExpTrial.HideTarget();
 
             // Make sure HideTarget method finished running
             if (finishedHideMethod)
@@ -326,27 +340,36 @@ public class ExperimentController : MonoBehaviour
                 resp = int.Parse(inputRef.text);                            // convert string input to int
 
                 // store the trial's info into the trialinfo csv
-                m_TrialInfoData.WriteData(peripheralDirection, targetNum,
+                bool writeDataDone = m_TrialInfoData.WriteData(peripheralDirection, totalNum,
                     targetCount, resp, targetApperanceTime);
 
-                // add number of correct trials
-                numCorrect = numCorrect + m_TrialInfoData.CorrectResponseCalc(targetCount, resp);
-                Debug.Log("Num Trials Correct = " + numCorrect);
-
-                inputRef.DeactivateInputField();                            // deactivate text input field
-                inputGameobjectRef.SetActive(false);                        // hide text input field
-
-                if (adjustCoherence)
+                // Make sure data written before moving on
+                if (writeDataDone)
                 {
-                    targetNum = m_AdjustCoherence.AdjustTargetNum(targetCount, resp);
-                    //feedbackGameobjectRef.SetActive(true);                      // activate feedback text
-                    //feedbackRef.text = targetCount.ToString();                  // show targetcount as string input
+                    // add number of correct trials
+                    numCorrect = numCorrect + m_TrialInfoData.CorrectResponseCalc(targetCount, resp);
+                    Debug.Log("Num Trials Correct = " + numCorrect);
+
+                    inputRef.DeactivateInputField();                            // deactivate text input field
+                    inputGameobjectRef.SetActive(false);                        // hide text input field
+
+                    if (adjustCoherence)
+                    {
+                        totalNum = m_AdjustCoherence.AdjustTargetNum(targetCount, resp);
+                        //feedbackGameobjectRef.SetActive(true);                      // activate feedback text
+                        //feedbackRef.text = targetCount.ToString();                  // show targetcount as string input
+                    }
+
+                    trialNumber++;                                                              // increment trial number by one
+
+                    if (trialNumber != 64 || trialNumber != 128 || trialNumber != 192)       // **hard coded numbers**
+                    {
+                        trialCounterRef.SetActive(true);                                        // show trial counter
+                        m_TrialNumber.UpdateTrialNumber(trialNumber, m_ExpSetup.totalTrials);   // update trial number
+                    }
+
+                    e_feedbackCall = true;
                 }
-
-                trialCounterRef.SetActive(true);                                        // show trial counter
-                m_TrialNumber.UpdateTrialNumber(trialNumber, m_ExpSetup.totalTrials);   // update trial number
-
-                e_feedbackCall = true;
             }
         }
 
@@ -354,7 +377,7 @@ public class ExperimentController : MonoBehaviour
         if (e_feedbackCall && Input.GetKeyDown(KeyCode.Space))
         {
             //if (adjustCoherence)
-                //feedbackGameobjectRef.SetActive(false);
+            //feedbackGameobjectRef.SetActive(false);
 
             trialCounterRef.SetActive(false);               // hide trial counter
 
@@ -364,7 +387,9 @@ public class ExperimentController : MonoBehaviour
 
     void TrialUpdate()
     {
-        trialNumber++;                                  // increment trial number by one
+        // Breaks between trial blocks
+        if (trialNumber == 64 || trialNumber == 128 || trialNumber == 192)               // **hard coded numbers**
+            recordingSetupDone = false;
 
         // Close the experiment out on the last trial
         if (trialNumber == m_ExpSetup.totalTrials)
@@ -413,6 +438,7 @@ public class ExperimentController : MonoBehaviour
         targetApperanceTime.Clear();
     }
 
+    #region Appendix Methods
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Appendix Methods
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -422,7 +448,7 @@ public class ExperimentController : MonoBehaviour
 
         if (peripheralTimer > timeBetweenPeripheralSpawn)
         {
-            timeBetweenPeripheralSpawn = Random.Range(0.05f, 0.1f);
+            timeBetweenPeripheralSpawn = Random.Range(0.05f, 0.1f); // **hard coded time range for now**
             if (direction == "Right")
                 m_SpawnPeriperal.SpawnRightwardMotion();
             if (direction == "Left")
@@ -453,4 +479,7 @@ public class ExperimentController : MonoBehaviour
         if (listClones.Count > maxNum)
             Destroy(listClones[0]);
     }
+    #endregion
 }
+
+

@@ -21,7 +21,7 @@ public class AdjustCoherence : MonoBehaviour {
         experimentManagerRef = GameObject.Find("ExperimentManager");
         m_ExpTrial = experimentManagerRef.GetComponent<ExpTrial>();
 
-        coherenceNum = m_ExpTrial.totalNum;     // start at 100% coherent motion
+        coherenceNum = m_ExpTrial.targetNum * 2;     // start at 50% coherent motion
 	}
 	
 	public int AdjustTargetNum(int nTargets, int response)
@@ -38,18 +38,15 @@ public class AdjustCoherence : MonoBehaviour {
         int lastIndx = correctRespList.Count - 1;
 
         // Change step size as get lower
-        if (coherenceNum < m_ExpTrial.totalNum * .5)    // 50%
-            step = 3;
-        if (coherenceNum < m_ExpTrial.totalNum * .3)    // 30%
+        if (coherenceNum > m_ExpTrial.targetNum * 3)    // 30%
             step = 2;
-        if (coherenceNum < m_ExpTrial.totalNum * .2)    // 20%
+        if (coherenceNum > m_ExpTrial.targetNum * 5)    // 20%
             step = 1;
-
         
-        // If response incorrect, increase num target dots
+        // If response incorrect, decrease num target dots
         if (correctRespList[lastIndx] == 0)
         {
-            coherenceNum = coherenceNum + step;
+            coherenceNum = coherenceNum - step;
             Debug.Log("incorrect step up");
         }
 
@@ -57,11 +54,11 @@ public class AdjustCoherence : MonoBehaviour {
         else if (correctRespList[lastIndx] == 1)
         {
             Debug.Log("correct wait");
-            // If previous response correct too, decrease num target dots
+            // If previous response correct too, increase num target dots
             if (correctRespList.Count > 1)
             {
                 if (correctRespList[lastIndx - 1] == 1)
-                coherenceNum = coherenceNum - step;
+                coherenceNum = coherenceNum + step;
                 Debug.Log("correct step down");
             }
         }

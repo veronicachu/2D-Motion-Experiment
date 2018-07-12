@@ -32,7 +32,7 @@ public class TrialInfoData : MonoBehaviour {
 
         // Write first line with data information
         string newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}",
-            "Target Direction", "Right Freq", "Left Freq", "Peripheral Direction", "Num Coherent",
+            "Target Direction", "Right Freq", "Left Freq", "Peripheral Direction", "Total Central Dots",
             "Number Targets", "Response","Target Times");
         csv.AppendLine(newLine);
     }
@@ -47,8 +47,10 @@ public class TrialInfoData : MonoBehaviour {
                              System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
     }
 
-    public void WriteData(string peripheralDirection, int nCoherent, int nTargets, int response, List<float> targetTime)
+    public bool WriteData(string peripheralDirection, int nCoherent, int nTargets, int response, List<float> targetTime)
     {
+        bool finisedRunning = false;
+
         // Collects target direction
         string targDirection = expCueRef.activeTarget.name;
         targDirection = targDirection.Remove(targDirection.Length - 13);     // remove "Motion_Sphere" at end
@@ -66,6 +68,8 @@ public class TrialInfoData : MonoBehaviour {
         }
 
         csv.AppendLine(newLine);
+        finisedRunning = true;
+        return finisedRunning;
     }
 
     public void SaveData()

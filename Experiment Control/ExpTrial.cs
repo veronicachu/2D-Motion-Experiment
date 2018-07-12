@@ -14,8 +14,8 @@ public class ExpTrial : MonoBehaviour
     //[HideInInspector]
     public float yMax;
 
-    //public int targetNum;                   // number of target items
-    public int totalNum;                    // number of distractor items
+    public int targetNum;                   // number of target items
+    //public int totalNum;                    // number of distractor items
 
     public GameObject rightMotion;          // right motion object
     public GameObject leftMotion;           // left motion object
@@ -24,12 +24,11 @@ public class ExpTrial : MonoBehaviour
     // script references
     private ExpCue m_ExpCue;
 
-    void Start()
-    {
+    void Start() {
         m_ExpCue = this.GetComponent<ExpCue>();
     }
 
-    public void SpawnShapes()
+    public void SpawnShapes(int totalNum)
     {
         // instantiate distractor object (random motion)
         for (int i = 0; i < totalNum; i++)
@@ -66,7 +65,7 @@ public class ExpTrial : MonoBehaviour
         newObject.GetComponent<DestroyReplace>().enabled = true;
     }
 
-    public bool ShowTarget(int targetNum)
+    public bool ShowTarget()
     {
         bool finishedRunning = false;
 
@@ -101,7 +100,7 @@ public class ExpTrial : MonoBehaviour
         return finishedRunning;
     }
 
-    public bool HideTarget(int targetNum)
+    public bool HideTarget()
     {
         bool finishedRunning = false;
 
