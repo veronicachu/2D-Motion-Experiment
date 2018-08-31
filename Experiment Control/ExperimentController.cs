@@ -20,7 +20,8 @@ public class ExperimentController : MonoBehaviour
 
     // Unchangeable variables
     private float generalTimer;
-    private float targetBufferTimer;
+    //private float targetBufferTimer;
+    public List<float> targetTimes;
     private float targetShowTimer;
     private float peripheralTimer;
     public int trialNumber;
@@ -41,7 +42,12 @@ public class ExperimentController : MonoBehaviour
     // Within-trial function flag variables
     bool e_cueCall = false;
     bool e_fixationCall = false;
-    bool e_targetCall = false;
+    bool e_targetCall1 = false;
+    bool e_targetCall2 = false;
+    bool e_targetCall3 = false;
+    bool e_targetHide1 = false;
+    bool e_targetHide2 = false;
+    bool e_targetHide3 = false;
     bool e_trialCall = false;
     bool e_respCall = false;
     bool e_feedbackCall = false;
@@ -138,7 +144,7 @@ public class ExperimentController : MonoBehaviour
         }
         else
         {
-            totalNum = 50;
+            totalNum = 25;
         }
     }
 
@@ -193,9 +199,12 @@ public class ExperimentController : MonoBehaviour
                 occluderRef[i].SetActive(true);
             }
 
-            m_FlickerManager.SetFlickerFreq();                          // set peripheral frequencies for trial
+            //m_FlickerManager.SetFlickerFreq();                          // set peripheral frequencies for trial
+            //Debug.Log("flicker freqs set");
             peripheralDirection = m_ExpPeripheral.SetupPeripheral();    // set peripheral apperance as right or left
+            Debug.Log("peripheral direction set");
             m_FlickerManager.StartAllFlicker();                         // start flickering elements
+            Debug.Log("flicker on");
 
             e_cueCall = true;
         }
@@ -235,7 +244,6 @@ public class ExperimentController : MonoBehaviour
     void SearchPhase()
     {
         generalTimer += Time.deltaTime;
-        targetBufferTimer += Time.deltaTime;
         targetShowTimer += Time.deltaTime;
 
         // Reset LSL markers
@@ -248,28 +256,36 @@ public class ExperimentController : MonoBehaviour
         if (!e_trialCall)
         {
             // deactivate occluders as peripheral sets up
-            for (int i = 0; i < occluderRef.Count; i++)
+            for (int i = 0; i < occluderRef.Count(); i++)
             {
                 occluderRef[i].SetActive(false);
             }
 
+            // get number of targets to appear in trial
+            int n = Random.Range(0, m_ExpSetup.numTarget.Count);
+            int numTarg = m_ExpSetup.numTarget[n];
+            m_ExpSetup.numTarget.RemoveAt(n);
+            Debug.Log("Number of Targets: " + numTarg);
 
-            m_ExpTrial.SpawnShapes(totalNum);                                           // spawn center shapes
+            // get times for target spawns
+            targetTimes = m_ExpTrial.TargetTimes(numTarg);
+
+            // spawn center shapes
+            m_ExpTrial.SpawnShapes(totalNum);                                   
 
             trialStartMarker = 1;                                               // set LSL trialStartMarker as 1
             e_trialCall = true;
         }
 
-        DestroyExtra("DistractorClone", totalNum);                   // constantly check the number of items are constant
+        DestroyExtra("DistractorClone", totalNum);                              // constantly check the number of items are constant
 
-        // If target hidden and buffer of 500 ms passses
-        if (!e_targetCall && targetBufferTimer > targetBuffer * Time.timeScale)
+        // If trial has at least 1 target
+        if (!e_targetCall1 && targetTimes.Count > 0)
         {
-            int n = Random.Range(0, 25);                                        // continue randomly selecting numbers until target shown
-
-            // If target to appear
-            if (n == 0)
+            // If timer passes target time [0], show target
+            if (generalTimer > targetTimes[0])
             {
+                //Debug.Log("show target 1");
                 targetApperanceTime.Add(generalTimer);
                 bool finishedShowMethod = m_ExpTrial.ShowTarget();              // destroy and replace distractors with targets
 
@@ -280,22 +296,95 @@ public class ExperimentController : MonoBehaviour
 
                     targetStartMarker = 1;                                      // set LSL targetStartMarker as 1
                     targetShowTimer = 0;                                        // reset targetShowTimer to 0
-                    e_targetCall = true;                                        // signal target not hidden (target shown)
+                    e_targetCall1 = true;                                        // signal target not hidden (target shown)
                 }
             }
         }
 
-        // If target time has reached max time
-        if (e_targetCall && targetShowTimer > targetTime)
+        // If trial has at least 2 targets
+        if (e_targetCall1 && !e_targetCall2 && targetTimes.Count > 1)
         {
+            // If timer passes target time [1], show target
+            if (generalTimer > targetTimes[1])
+            {
+                //Debug.Log("show target 2");
+                targetApperanceTime.Add(generalTimer);
+                bool finishedShowMethod = m_ExpTrial.ShowTarget();              // destroy and replace distractors with targets
+
+                // Make sure ShowTarget method finished running
+                if (finishedShowMethod)
+                {
+                    targetCount++;                                              // increase target count
+
+                    targetStartMarker = 2;                                      // set LSL targetStartMarker as 1
+                    targetShowTimer = 0;                                        // reset targetShowTimer to 0
+                    e_targetCall2 = true;                                        // signal target not hidden (target shown)
+                }
+            }
+        }
+
+        // If trial has at least 3 targets
+        if (e_targetCall1 && e_targetCall2 && !e_targetCall3 && targetTimes.Count > 2)
+        {
+            // If timer passes target time [2], show target
+            if (generalTimer > targetTimes[2])
+            {
+                //Debug.Log("show target 3");
+                targetApperanceTime.Add(generalTimer);
+                bool finishedShowMethod = m_ExpTrial.ShowTarget();              // destroy and replace distractors with targets
+
+                // Make sure ShowTarget method finished running
+                if (finishedShowMethod)
+                {
+                    targetCount++;                                              // increase target count
+
+                    targetStartMarker = 3;                                      // set LSL targetStartMarker as 1
+                    targetShowTimer = 0;                                        // reset targetShowTimer to 0
+                    e_targetCall3 = true;                                        // signal target not hidden (target shown)
+                }
+            }
+        }
+
+        // If target time has reached max time, hide target (for target #1)
+        if (e_targetCall1 && !e_targetHide1 && targetShowTimer > targetTime)
+        {
+            //Debug.Log("hide target 1");
             bool finishedHideMethod = m_ExpTrial.HideTarget();
 
             // Make sure HideTarget method finished running
             if (finishedHideMethod)
             {
                 targetEndMarker = 1;                                            // set LSL targetEndMarker as 1
-                targetBufferTimer = 0;                                          // reset targetBufferTimer to 0
-                e_targetCall = false;                                           // signal target hidden
+                e_targetHide1 = true;
+            }
+                
+        }
+
+        // If target time has reached max time, hide target (for target #2)
+        if (e_targetCall2 && e_targetHide1 && !e_targetHide2 && targetShowTimer > targetTime)
+        {
+            //Debug.Log("hide target 2");
+            bool finishedHideMethod = m_ExpTrial.HideTarget();
+
+            // Make sure HideTarget method finished running
+            if (finishedHideMethod)
+            {
+                targetEndMarker = 2;                                            // set LSL targetEndMarker as 2
+                e_targetHide2 = true;
+            }
+        }
+
+        // If target time has reached max time, hide target (for target #3)
+        if (e_targetCall3 && e_targetHide1 && e_targetHide2 && !e_targetHide3 && targetShowTimer > targetTime)
+        {
+            //Debug.Log("hide target 3");
+            bool finishedHideMethod = m_ExpTrial.HideTarget();
+
+            // Make sure HideTarget method finished running
+            if (finishedHideMethod)
+            {
+                targetEndMarker = 3;                                            // set LSL targetEndMarker as 3
+                e_targetHide3 = true;
             }
         }
 
@@ -329,7 +418,7 @@ public class ExperimentController : MonoBehaviour
 
         // Wait for the subject's response
         inputRef.Select();                              // select text input field
-        if (Input.GetKeyDown(KeyCode.KeypadEnter))
+        if (!e_feedbackCall && Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return))
         {
             if (inputRef.text == "")
             {
@@ -423,7 +512,12 @@ public class ExperimentController : MonoBehaviour
         // Reset all calls to exp and flicker code to false for the next trial
         e_cueCall = false;
         e_fixationCall = false;
-        e_targetCall = false;
+        e_targetCall1 = false;
+        e_targetCall2 = false;
+        e_targetCall3 = false;
+        e_targetHide1 = false;
+        e_targetHide2 = false;
+        e_targetHide3 = false;
         e_trialCall = false;
         e_respCall = false;
         e_feedbackCall = false;
@@ -431,10 +525,11 @@ public class ExperimentController : MonoBehaviour
 
         // Reset changing variables to 0 for the next trial
         generalTimer = 0;
-        targetBufferTimer = 0;
+        //targetBufferTimer = 0;
         targetCount = 0;
 
         // Clear lists
+        targetTimes.Clear();
         targetApperanceTime.Clear();
     }
 

@@ -32,81 +32,73 @@ public class ExpPeripheral : MonoBehaviour {
         float leftFreq = leftFlicker.GetComponent<FlickerMaterial>().Frequency;
 
         // access peripheral lists
-        List<bool> right12 = m_ExpSetup.right12peripheralTrials;
-        List<bool> right18 = m_ExpSetup.right18peripheralTrials;
-        List<bool> left12 = m_ExpSetup.left12peripheralTrials;
-        List<bool> left18 = m_ExpSetup.left18peripheralTrials;
+        List<bool> rightperipheral = m_ExpSetup.rightPeripheralTrials;
+        List<bool> leftperipheral = m_ExpSetup.leftPeripheralTrials;
 
         string peripheralSetting = "Null";
         // if rightward motion
         if (targDirection)
         {
-            // if rightward motion set to 12.5Hz
-            if (rightFreq == m_ExpSetup.frequencies[0])
-            {
-                // select one of the peripheral flicker trials at random
-                int n = Random.Range(0, right12.Count);
+            // select one of the peripheral flicker trials at random
+            int n = Random.Range(0, rightperipheral.Count);
 
-                if (right12[n] == true)
-                    peripheralSetting = "Right";
-                else if (right12[n] == false)
-                    peripheralSetting = "Left";
-                    
-                // remove used trial from list
-                right12.RemoveAt(n);
-            }
-            // if rightward motion set to 18.75Hz
-            else if (rightFreq == m_ExpSetup.frequencies[1])
-            {
-                // select one of the peripheral flicker trials at random
-                int n = Random.Range(0, right18.Count);
+            if (rightperipheral[n] == true)
+                peripheralSetting = "Right";
+            else if (rightperipheral[n] == false)
+                peripheralSetting = "Left";
 
-                if (right18[n] == true)
-                    peripheralSetting = "Right";
-                else if (right18[n] == false)
-                    peripheralSetting = "Left";
+            // remove used trial from list
+            rightperipheral.RemoveAt(n);
 
-                // remove used trial from list
-                right18.RemoveAt(n);
-            }
+            //// if rightward motion set to 18.75Hz
+            //else if (rightFreq == m_ExpSetup.frequencies[1])
+            //{
+            //    // select one of the peripheral flicker trials at random
+            //    int n = Random.Range(0, right18.Count);
+
+            //    if (right18[n] == true)
+            //        peripheralSetting = "Right";
+            //    else if (right18[n] == false)
+            //        peripheralSetting = "Left";
+
+            //    // remove used trial from list
+            //    right18.RemoveAt(n);
+            //}
         }
         // if leftward motion
         else if (!targDirection)
         {
-            // if leftward motion set to 12.5Hz
-            if (leftFreq == m_ExpSetup.frequencies[0])
-            {
-                // select one of the peripheral flicker trials at random
-                int n = Random.Range(0, left12.Count);
+            // select one of the peripheral flicker trials at random
+            int n = Random.Range(0, leftperipheral.Count);
 
-                if (left12[n] == true)
-                    peripheralSetting = "Right";
-                else if (left12[n] == false)
-                    peripheralSetting = "Left";
+            if (leftperipheral[n] == true)
+                peripheralSetting = "Right";
+            else if (leftperipheral[n] == false)
+                peripheralSetting = "Left";
 
-                // remove used trial from list
-                left12.RemoveAt(n);
-            }
-            // if leftward motion set to 18.75Hz
-            else if (leftFreq == m_ExpSetup.frequencies[1])
-            {
-                // select one of the peripheral flicker trials at random
-                int n = Random.Range(0, left18.Count);
+            // remove used trial from list
+            leftperipheral.RemoveAt(n);
 
-                if (left18[n] == true)
-                    peripheralSetting = "Right";
-                else if (left18[n] == false)
-                    peripheralSetting = "Left";
+            //// if leftward motion set to 18.75Hz
+            //else if (leftFreq == m_ExpSetup.frequencies[1])
+            //{
+            //    // select one of the peripheral flicker trials at random
+            //    int n = Random.Range(0, left18.Count);
 
-                // remove used trial from list
-                left18.RemoveAt(n);
-            }
+            //    if (left18[n] == true)
+            //        peripheralSetting = "Right";
+            //    else if (left18[n] == false)
+            //        peripheralSetting = "Left";
+
+            //    // remove used trial from list
+            //    left18.RemoveAt(n);
+            //}
         }
 
-        if(peripheralSetting == "Right")
-            photocell.GetComponent<FlickerMaterial>().Frequency = rightFreq;    // photocell same freq as right motion
-        else if(peripheralSetting == "Left")
-            photocell.GetComponent<FlickerMaterial>().Frequency = leftFreq;    // photocell same freq as left motion
+        //if(peripheralSetting == "Right")
+        //    photocell.GetComponent<FlickerMaterial>().Frequency = rightFreq;    // photocell same freq as right motion
+        //else if(peripheralSetting == "Left")
+        //    photocell.GetComponent<FlickerMaterial>().Frequency = leftFreq;    // photocell same freq as left motion
 
         return peripheralSetting;
     }

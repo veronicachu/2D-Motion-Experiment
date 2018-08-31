@@ -15,7 +15,7 @@ public class ActivateTextInput : MonoBehaviour {
         mainInputField.ActivateInputField();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if(Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return))
         {

@@ -28,6 +28,37 @@ public class ExpTrial : MonoBehaviour
         m_ExpCue = this.GetComponent<ExpCue>();
     }
 
+    public List<float> TargetTimes(int targetnum)
+    {
+        List<float> targTime = new List<float>();
+
+        if (targetnum == 1)
+        {
+            float temp1 = Random.Range(1.000f, 5.000f);
+            targTime.Add(temp1);
+        }
+
+        if (targetnum == 2)
+        {
+            float temp1 = Random.Range(1.000f, 2.500f);
+            float temp2 = Random.Range(3.500f, 5.000f);
+            targTime.Add(temp1);
+            targTime.Add(temp2);
+        }
+
+        if (targetnum == 3)
+        {
+            float temp1 = Random.Range(1.000f, 1.500f);
+            float temp2 = Random.Range(2.500f, 3.500f);
+            float temp3 = Random.Range(4.500f, 5.000f);
+            targTime.Add(temp1);
+            targTime.Add(temp2);
+            targTime.Add(temp3);
+        }
+
+        return targTime;
+    }
+
     public void SpawnShapes(int totalNum)
     {
         // instantiate distractor object (random motion)

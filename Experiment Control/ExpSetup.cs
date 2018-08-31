@@ -27,17 +27,16 @@ public class ExpSetup : MonoBehaviour
     
     [HideInInspector]
     public List<GameObject> targetTrials = new List<GameObject>();
-    [HideInInspector]
-    public List<float> rightfreqTrials = new List<float>();
-    [HideInInspector]
-    public List<float> leftfreqTrials = new List<float>();
 
-    [HideInInspector] public List<bool> right12peripheralTrials = new List<bool>();
-    [HideInInspector] public List<bool> right18peripheralTrials = new List<bool>();
-    [HideInInspector] public List<bool> left12peripheralTrials = new List<bool>();
-    [HideInInspector] public List<bool> left18peripheralTrials = new List<bool>();
+    [HideInInspector] 
+    public List<bool> rightPeripheralTrials = new List<bool>();
+    [HideInInspector] 
+    public List<bool> leftPeripheralTrials = new List<bool>();
 
-    public void Awake ()
+    [HideInInspector]
+    public List<int> numTarget = new List<int>();
+
+    public void Awake()
     {
         // this loop creates the motion targets for trials
         trialsPerCue = totalTrials / cueTypes.Count;
@@ -50,27 +49,23 @@ public class ExpSetup : MonoBehaviour
             }
         }
 
-        // this loop creates the motion-freq for trials
+        // this loop creates the peripheral direction for trials
         for (int i = 0; i < totalTrials / 4; i++)
         {
-            rightfreqTrials.AddRange(frequencies);
-            leftfreqTrials.AddRange(frequencies);
+            rightPeripheralTrials.Add(true);
+            rightPeripheralTrials.Add(false);
+
+            leftPeripheralTrials.Add(true);
+            leftPeripheralTrials.Add(false);
         }
 
-        // this loop creates the peripheral direction for trials
-        for (int i = 0; i < totalTrials / 8; i++)
+        // this loop creates the correct answer possibilities for trials
+        for (int i = 0; i < totalTrials / 4; i++)
         {
-            right12peripheralTrials.Add(true);
-            right12peripheralTrials.Add(false);
-
-            right18peripheralTrials.Add(true);
-            right18peripheralTrials.Add(false);
-
-            left12peripheralTrials.Add(true);
-            left12peripheralTrials.Add(false);
-
-            left18peripheralTrials.Add(true);
-            left18peripheralTrials.Add(false);
+            numTarget.Add(0);
+            numTarget.Add(1);
+            numTarget.Add(2);
+            numTarget.Add(3);
         }
 
         loadComplete = true;

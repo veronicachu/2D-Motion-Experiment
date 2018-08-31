@@ -38,70 +38,70 @@ public class FlickerManager : MonoBehaviour
 
     public void SetFlickerFreq()
     {
-        // reset prefab locations in game world
-        rightFlicker.transform.position = rightFlickerStartPosition;
-        leftFlicker.transform.position = leftFlickerStartPosition;
+        //// reset prefab locations in game world
+        //rightFlicker.transform.position = rightFlickerStartPosition;
+        //leftFlicker.transform.position = leftFlickerStartPosition;
 
-        // temp list of possible frequencies
-        List<float> tempFreqList = new List<float>(m_ExpSetup.frequencies);
+        //// temp list of possible frequencies
+        //List<float> tempFreqList = new List<float>(m_ExpSetup.frequencies);
 
-        // access specific frequency lists
-        List<float> rightfreqTrialsTemp = m_ExpSetup.rightfreqTrials;
-        List<float> leftfreqTrialsTemp = m_ExpSetup.leftfreqTrials;
+        //// access specific frequency lists
+        //List<float> rightfreqTrialsTemp = m_ExpSetup.rightTrials;
+        //List<float> leftfreqTrialsTemp = m_ExpSetup.leftTrials;
 
-        // get target direction for current trial
-        bool targDirection = m_ExpCue.activeTarget.GetComponent<TargetMotion>().moveRight;
+        //// get target direction for current trial
+        //bool targDirection = m_ExpCue.activeTarget.GetComponent<TargetMotion>().moveRight;
 
-        // if rightward motion
-        if(targDirection)
-        {
-            // select one of the right flicker trials at random
-            int n = Random.Range(0, rightfreqTrialsTemp.Count);
+        //// if rightward motion
+        //if(targDirection)
+        //{
+        //    // select one of the right flicker trials at random
+        //    int n = Random.Range(0, rightfreqTrialsTemp.Count);
 
-            // set right motion flicker frequency
-            rightFlicker.GetComponent<FlickerMaterial>().Frequency = rightfreqTrialsTemp[n];
-            //photocell.GetComponent<FlickerMaterial>().Frequency = rightfreqTrialsTemp[n];
+        //    // set right motion flicker frequency
+        //    rightFlicker.GetComponent<FlickerMaterial>().Frequency = rightfreqTrialsTemp[n];
+        //    //photocell.GetComponent<FlickerMaterial>().Frequency = rightfreqTrialsTemp[n];
 
-            // remove used frequency from the list of possible frequencies
-            for (int i = 0; i < tempFreqList.Count; i++)
-            {
-                if (tempFreqList[i] == rightfreqTrialsTemp[n])
-                {
-                    tempFreqList.RemoveAt(i);
-                }
-            }
+        //    // remove used frequency from the list of possible frequencies
+        //    for (int i = 0; i < tempFreqList.Count; i++)
+        //    {
+        //        if (tempFreqList[i] == rightfreqTrialsTemp[n])
+        //        {
+        //            tempFreqList.RemoveAt(i);
+        //        }
+        //    }
 
-            // set left motion flicker frequency with remaining frequency
-            leftFlicker.GetComponent<FlickerMaterial>().Frequency = tempFreqList[0];
+        //    // set left motion flicker frequency with remaining frequency
+        //    leftFlicker.GetComponent<FlickerMaterial>().Frequency = tempFreqList[0];
 
-            // remove current motion-freq trial from overall list of right motion-freq trials
-            rightfreqTrialsTemp.RemoveAt(n);
-        }
+        //    // remove current motion-freq trial from overall list of right motion-freq trials
+        //    rightfreqTrialsTemp.RemoveAt(n);
+        //}
 
-        // if leftward motion
-        else if(!targDirection)
-        {
-            int n = Random.Range(0, leftfreqTrialsTemp.Count);
+        //// if leftward motion
+        //else if(!targDirection)
+        //{
+        //    int n = Random.Range(0, leftfreqTrialsTemp.Count);
 
-            // set left motion flicker frequency
-            leftFlicker.GetComponent<FlickerMaterial>().Frequency = leftfreqTrialsTemp[n];
-            //photocell.GetComponent<FlickerMaterial>().Frequency = leftfreqTrialsTemp[n];
+        //    // set left motion flicker frequency
+        //    leftFlicker.GetComponent<FlickerMaterial>().Frequency = leftfreqTrialsTemp[n];
+        //    //photocell.GetComponent<FlickerMaterial>().Frequency = leftfreqTrialsTemp[n];
             
-            // remove used frequency from the list of possible frequencies
-            for (int i = 0; i < tempFreqList.Count; i++)
-            {
-                if (tempFreqList[i] == leftfreqTrialsTemp[n])
-                {
-                    tempFreqList.RemoveAt(i);
-                }
-            }
+        //    // remove used frequency from the list of possible frequencies
+        //    for (int i = 0; i < tempFreqList.Count; i++)
+        //    {
+        //        if (tempFreqList[i] == leftfreqTrialsTemp[n])
+        //        {
+        //            tempFreqList.RemoveAt(i);
+        //        }
+        //    }
 
-            // set right motion flicker frequency with remaining frequency
-            rightFlicker.GetComponent<FlickerMaterial>().Frequency = tempFreqList[0];
+        //    // set right motion flicker frequency with remaining frequency
+        //    rightFlicker.GetComponent<FlickerMaterial>().Frequency = tempFreqList[0];
 
-            // remove current motion-freq trial from overall list of left motion-freq trials
-            leftfreqTrialsTemp.RemoveAt(n);
-        }
+        //    // remove current motion-freq trial from overall list of left motion-freq trials
+        //    leftfreqTrialsTemp.RemoveAt(n);
+        //}
     }
 
     public void StartAllFlicker()
