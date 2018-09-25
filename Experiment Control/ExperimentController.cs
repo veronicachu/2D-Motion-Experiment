@@ -81,6 +81,7 @@ public class ExperimentController : MonoBehaviour
     // Temporary data storage list
     private string peripheralDirection;
     public int totalNum;
+    private int targetNumTemp;
     private int targetCount;
     private List<float> targetApperanceTime = new List<float>();
     private int resp;
@@ -245,7 +246,7 @@ public class ExperimentController : MonoBehaviour
     {
         generalTimer += Time.deltaTime;
         targetShowTimer += Time.deltaTime;
-
+        
         // Reset LSL markers
         trialStartMarker = 0;
         trialEndMarker = 0;
@@ -278,6 +279,7 @@ public class ExperimentController : MonoBehaviour
         }
 
         DestroyExtra("DistractorClone", totalNum);                              // constantly check the number of items are constant
+        DestroyExtra("TargetClone", targetNumTemp);                             // constantly check the number of items are constant
 
         // If trial has at least 1 target
         if (!e_targetCall1 && targetTimes.Count > 0)
@@ -292,11 +294,12 @@ public class ExperimentController : MonoBehaviour
                 // Make sure ShowTarget method finished running
                 if (finishedShowMethod)
                 {
+                    targetNumTemp = m_ExpTrial.targetNum;
                     targetCount++;                                              // increase target count
 
                     targetStartMarker = 1;                                      // set LSL targetStartMarker as 1
                     targetShowTimer = 0;                                        // reset targetShowTimer to 0
-                    e_targetCall1 = true;                                        // signal target not hidden (target shown)
+                    e_targetCall1 = true;                                       // signal target not hidden (target shown)
                 }
             }
         }
@@ -314,11 +317,12 @@ public class ExperimentController : MonoBehaviour
                 // Make sure ShowTarget method finished running
                 if (finishedShowMethod)
                 {
+                    targetNumTemp = m_ExpTrial.targetNum;
                     targetCount++;                                              // increase target count
 
                     targetStartMarker = 2;                                      // set LSL targetStartMarker as 1
                     targetShowTimer = 0;                                        // reset targetShowTimer to 0
-                    e_targetCall2 = true;                                        // signal target not hidden (target shown)
+                    e_targetCall2 = true;                                       // signal target not hidden (target shown)
                 }
             }
         }
@@ -336,6 +340,7 @@ public class ExperimentController : MonoBehaviour
                 // Make sure ShowTarget method finished running
                 if (finishedShowMethod)
                 {
+                    targetNumTemp = m_ExpTrial.targetNum;
                     targetCount++;                                              // increase target count
 
                     targetStartMarker = 3;                                      // set LSL targetStartMarker as 1
@@ -354,10 +359,10 @@ public class ExperimentController : MonoBehaviour
             // Make sure HideTarget method finished running
             if (finishedHideMethod)
             {
+                targetNumTemp = 0;
                 targetEndMarker = 1;                                            // set LSL targetEndMarker as 1
                 e_targetHide1 = true;
             }
-                
         }
 
         // If target time has reached max time, hide target (for target #2)
@@ -369,6 +374,7 @@ public class ExperimentController : MonoBehaviour
             // Make sure HideTarget method finished running
             if (finishedHideMethod)
             {
+                targetNumTemp = 0;
                 targetEndMarker = 2;                                            // set LSL targetEndMarker as 2
                 e_targetHide2 = true;
             }
@@ -383,6 +389,7 @@ public class ExperimentController : MonoBehaviour
             // Make sure HideTarget method finished running
             if (finishedHideMethod)
             {
+                targetNumTemp = 0;
                 targetEndMarker = 3;                                            // set LSL targetEndMarker as 3
                 e_targetHide3 = true;
             }
