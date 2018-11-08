@@ -7,8 +7,8 @@ public class ExpPeripheral : MonoBehaviour {
     private ExpSetup m_ExpSetup;
     private ExpCue m_ExpCue;
 
-    private GameObject rightFlicker;
-    private GameObject leftFlicker;
+    public GameObject rightFlicker;
+    public GameObject leftFlicker;
     private GameObject photocell;
     
     void Start () {
@@ -17,8 +17,8 @@ public class ExpPeripheral : MonoBehaviour {
         m_ExpCue = this.GetComponent<ExpCue>();
 
         // Find flicker objects
-        rightFlicker = GameObject.Find("RightMotion_Flicker");
-        leftFlicker = GameObject.Find("LeftMotion_Flicker");
+        //rightFlicker = GameObject.Find("RightMotion_Flicker");
+        //leftFlicker = GameObject.Find("LeftMotion_Flicker");
         photocell = GameObject.Find("Photocell");
     }
 

@@ -5,10 +5,8 @@ public class FlickerManager : MonoBehaviour
 {
     private ExpSetup m_ExpSetup;
     private ExpCue m_ExpCue;
-
-    [HideInInspector]
+    
     public GameObject rightFlicker;
-    [HideInInspector]
     public GameObject leftFlicker;
     private GameObject photocell;
     private List<GameObject> flickerObjects = new List<GameObject>();
@@ -23,8 +21,8 @@ public class FlickerManager : MonoBehaviour
         m_ExpCue = this.GetComponent<ExpCue>();
 
         // Find flicker objects
-        rightFlicker = GameObject.Find("RightMotion_Flicker");
-        leftFlicker = GameObject.Find("LeftMotion_Flicker");
+        //rightFlicker = GameObject.Find("RightMotion_Flicker");
+        //leftFlicker = GameObject.Find("LeftMotion_Flicker");
         photocell = GameObject.Find("Photocell");
 
         // Make list of both flicker objects

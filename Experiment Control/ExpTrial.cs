@@ -11,7 +11,9 @@ public class ExpTrial : MonoBehaviour
     public float yMax;
 
     public int targetNum;                   // number of target items
-    public float rampStep;                  // ramp up/down time spacing
+    public List<float> rampStep = new List<float>();                  // ramp up/down time spacing
+    //[HideInInspector]
+    public int tempNumTarget;
 
     public GameObject rightMotion;          // right motion object
     public GameObject leftMotion;           // left motion object
@@ -20,33 +22,34 @@ public class ExpTrial : MonoBehaviour
     // script references
     private ExpCue m_ExpCue;
 
-    void Start() {
+    void Start()
+    {
         m_ExpCue = this.GetComponent<ExpCue>();
     }
-
+    
     public List<float> TargetTimes(int targetnum)
     {
         List<float> targTime = new List<float>();
 
         if (targetnum == 1)
         {
-            float temp1 = Random.Range(1.000f, 9.000f);
+            float temp1 = Random.Range(0.500f, 7.000f);
             targTime.Add(temp1);
         }
 
         if (targetnum == 2)
         {
-            float temp1 = Random.Range(1.000f, 4.500f);
-            float temp2 = Random.Range(5.500f, 9.500f);
+            float temp1 = Random.Range(0.500f, 2.500f);
+            float temp2 = Random.Range(5.000f, 7.000f);
             targTime.Add(temp1);
             targTime.Add(temp2);
         }
 
         if (targetnum == 3)
         {
-            float temp1 = Random.Range(1.000f, 3.000f);
-            float temp2 = Random.Range(4.000f, 6.000f);
-            float temp3 = Random.Range(7.000f, 9.000f);
+            float temp1 = Random.Range(0.500f, 1.000f);
+            float temp2 = Random.Range(3.500f, 4.000f);
+            float temp3 = Random.Range(6.500f, 7.000f);
             targTime.Add(temp1);
             targTime.Add(temp2);
             targTime.Add(temp3);
@@ -57,10 +60,20 @@ public class ExpTrial : MonoBehaviour
 
     public void SpawnShapes(int totalNum)
     {
-        // instantiate distractor object (random motion)
+        // instantiate distractor objects
         for (int i = 0; i < totalNum; i++)
         {
             SpawnObject(distractorMotion);
+        }
+
+        //instantiate target object
+        bool rightDirection = m_ExpCue.activeTarget.GetComponent<TargetMotion>().moveRight;
+        for (int i = 0; i < targetNum; i++)
+        {
+            if (rightDirection)
+                SpawnObject(rightMotion);
+            else if (!rightDirection)
+                SpawnObject(leftMotion);
         }
     }
 
@@ -96,79 +109,40 @@ public class ExpTrial : MonoBehaviour
     {
         bool finishedRunning = false;
 
-        //// get current trial's target
-        //bool rightDirection = m_ExpCue.activeTarget.GetComponent<TargetMotion>().moveRight;
-
-        //// collect all distractor objects
-        //List<GameObject> distractors = new List<GameObject>();
-        //distractors.AddRange(GameObject.FindGameObjectsWithTag("DistractorClone"));
-
-        //// delete and replace subset of distractors with target object
-        //for (int i = 0; i < targetNum; i++)
-        //{
-        //    // destroy random distractor object and remove from list
-        //    int n = Random.Range(0, distractors.Count);
-        //    Destroy(distractors[n]);
-        //    distractors.RemoveAt(n);
-
-        //    // if target rightward motion
-        //    if (rightDirection)
-        //    {
-        //        SpawnObject(rightMotion);
-        //    }
-        //    // if target leftward motion
-        //    else if (!rightDirection)
-        //    {
-        //        SpawnObject(leftMotion);
-        //    }
-        //}
         StartCoroutine(WaittoSpawn());
 
         finishedRunning = true;
         return finishedRunning;
     }
 
-    private IEnumerator WaittoSpawn()
+    public IEnumerator WaittoSpawn()
     {
-        WaitForSeconds wait = new WaitForSeconds(rampStep);
-
         // get current trial's target
         bool rightDirection = m_ExpCue.activeTarget.GetComponent<TargetMotion>().moveRight;
-        
+
         // delete and replace subset of distractors with target object
-        bool done = false;
         for (int i = 0; i < targetNum; i++)
         {
-            if (!done)
-            {
-                // collect all distractor objects
-                List<GameObject> distractors = new List<GameObject>();
-                distractors.AddRange(GameObject.FindGameObjectsWithTag("DistractorClone"));
+            tempNumTarget = tempNumTarget + 1;
+            //Debug.Log("spawning target #" + tempNumTarget);
 
-                // destroy random distractor object and remove from list
-                int n = Random.Range(0, distractors.Count);
-                Destroy(distractors[n]);
-                distractors.RemoveAt(n);
+            // collect all distractor objects
+            List<GameObject> distractors = new List<GameObject>();
+            distractors.AddRange(GameObject.FindGameObjectsWithTag("DistractorClone"));
 
-                // if target rightward motion
-                if (rightDirection)
-                {
-                    SpawnObject(rightMotion);
-                }
-                // if target leftward motion
-                else if (!rightDirection)
-                {
-                    SpawnObject(leftMotion);
-                }
+            // destroy random distractor object and remove from list
+            int n = Random.Range(0, distractors.Count);
+            Destroy(distractors[n]);
+            distractors.RemoveAt(n);
 
-                done = true;
-            }
-            
-            if (done)
-            {
-                yield return wait;
-                done = false;
-            }
+            // if target rightward motion
+            if (rightDirection)
+                SpawnObject(rightMotion);
+            // if target leftward motion
+            else if (!rightDirection)
+                SpawnObject(leftMotion);
+
+            yield return new WaitForSeconds(rampStep[i]);
         }
     }
 
@@ -176,53 +150,31 @@ public class ExpTrial : MonoBehaviour
     {
         bool finishedRunning = false;
 
-        //// collect all target objects
-        //List<GameObject> targets = new List<GameObject>();
-        //targets.AddRange(GameObject.FindGameObjectsWithTag("TargetClone"));
-
-        //// delete and replace targets with distractors
-        //for (int i = 0; i < targetNum; i++)
-        //{
-        //    // destroy target object
-        //    Destroy(targets[i]);
-
-        //    // instantiate distractor object
-        //    SpawnObject(distractorMotion);
-        //}
         StartCoroutine(WaittoDespawn());
 
         finishedRunning = true;
         return finishedRunning;
     }
 
-    private IEnumerator WaittoDespawn()
+    public IEnumerator WaittoDespawn()
     {
-        WaitForSeconds wait = new WaitForSeconds(rampStep);
-
-        // collect all target objects
-        List<GameObject> targets = new List<GameObject>();
-        targets.AddRange(GameObject.FindGameObjectsWithTag("TargetClone"));
-
         // delete and replace targets with distractors
-        bool done = false;
-        for (int i = 0; i < targetNum; i++)
+        for (int i = targetNum-1; i > -1; i--)
         {
-            if (!done)
-            {
-                // destroy target object
-                Destroy(targets[i]);
-
-                // instantiate distractor object
-                SpawnObject(distractorMotion);
-
-                done = true;
-            }
+            //Debug.Log("hiding target: " + tempNumTarget);
+            // collect all target objects
+            List<GameObject> targets = new List<GameObject>();
+            targets.AddRange(GameObject.FindGameObjectsWithTag("TargetClone"));
             
-            if (done)
-            {
-                yield return wait;
-                done = false;
-            }
+            // destroy target object
+            Destroy(targets[0]);
+
+            // instantiate distractor object
+            SpawnObject(distractorMotion);
+
+            //Debug.Log("rampstep is = " + rampStep[i]);
+            yield return new WaitForSeconds(rampStep[i]);
+            tempNumTarget = tempNumTarget - 1;
         }
     }
 }

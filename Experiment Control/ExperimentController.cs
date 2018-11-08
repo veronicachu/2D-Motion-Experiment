@@ -13,7 +13,7 @@ public class ExperimentController : MonoBehaviour
     public float fixationTime;
     public float trialTime;
     public float targetTime;
-    public float targetBuffer;
+    public float aftereffectTime;
     public float timeBetweenPeripheralSpawn;
     public bool adjustCoherence;
     public int nextSceneNum;
@@ -70,7 +70,7 @@ public class ExperimentController : MonoBehaviour
     private GameObject fixationObjectRef;
     private GameObject trialCounterRef;
     private GameObject inputGameobjectRef;
-    //private GameObject feedbackGameobjectRef;
+    private GameObject feedbackGameobjectRef;
     private GameObject instructionsRef;
     private GameObject coherenceManagerRef;
 
@@ -79,8 +79,13 @@ public class ExperimentController : MonoBehaviour
     public Text feedbackRef;
 
     // Temporary data storage list
+    private bool rightDirection;
     private string peripheralDirection;
-    public int totalNum;
+    private int totalNumRR;
+    private int totalNumLL;
+    private int totalNumRL;
+    private int totalNumLR;
+    private int totalNum;
     private int targetNumTemp;
     private int targetCount;
     private List<float> targetApperanceTime = new List<float>();
@@ -116,9 +121,9 @@ public class ExperimentController : MonoBehaviour
         inputGameobjectRef = GameObject.Find("InputField");
         inputGameobjectRef.SetActive(false);                        // hide text input field
 
-        //// Setup feedback references
-        //feedbackGameobjectRef = GameObject.Find("Feedback");        
-        //feedbackGameobjectRef.SetActive(false);                     // hide feedback object
+        // Setup feedback references
+        feedbackGameobjectRef = GameObject.Find("Feedback");
+        feedbackGameobjectRef.SetActive(false);                     // hide feedback object
 
         // Setup instruction references
         instructionsRef = GameObject.Find("Instructions");
@@ -129,24 +134,9 @@ public class ExperimentController : MonoBehaviour
             m_AdjustCoherence = coherenceManagerRef.GetComponent<AdjustCoherence>();
 
         // Adjust coherence level for current subject using calibration data
-        if (adjustCoherence)
-            totalNum = m_AdjustCoherence.coherenceNum;
-        else if (!adjustCoherence && coherenceManagerRef != null)   // **hard coded to grab last 10 coherence numbers**
-        {
-            int lastIndx = m_AdjustCoherence.numRecord.Count - 1;
-            int avgNum = 0;
-            for (int i = lastIndx; i > lastIndx - 10; i--)
-            {
-                avgNum = m_AdjustCoherence.numRecord[i] + avgNum;
-            }
-            avgNum = avgNum / 10;
-
-            totalNum = avgNum;
-        }
-        else
-        {
-            totalNum = 25;
-        }
+        //if (adjustCoherence)
+        //    totalNum = m_AdjustCoherence.coherenceNum;
+        
     }
 
     void Update()
@@ -206,6 +196,10 @@ public class ExperimentController : MonoBehaviour
             Debug.Log("peripheral direction set");
             m_FlickerManager.StartAllFlicker();                         // start flickering elements
             Debug.Log("flicker on");
+
+            // get current trial's target
+            rightDirection = m_ExpCue.activeTarget.GetComponent<TargetMotion>().moveRight;
+            SetTotalNum();      // set total num of distractors for trial
 
             e_cueCall = true;
         }
@@ -279,22 +273,22 @@ public class ExperimentController : MonoBehaviour
         }
 
         DestroyExtra("DistractorClone", totalNum);                              // constantly check the number of items are constant
-        DestroyExtra("TargetClone", targetNumTemp);                             // constantly check the number of items are constant
+        DestroyExtra("TargetClone", m_ExpTrial.tempNumTarget);                  // constantly check the number of items are constant
 
-        // If trial has at least 1 target
+        // If 1 target and proper time, show target 1
         if (!e_targetCall1 && targetTimes.Count > 0)
         {
             // If timer passes target time [0], show target
             if (generalTimer > targetTimes[0])
             {
-                //Debug.Log("show target 1");
+                Debug.Log("show target");
                 targetApperanceTime.Add(generalTimer);
                 bool finishedShowMethod = m_ExpTrial.ShowTarget();              // destroy and replace distractors with targets
 
                 // Make sure ShowTarget method finished running
                 if (finishedShowMethod)
                 {
-                    targetNumTemp = m_ExpTrial.targetNum;
+                    Debug.Log("finished showing target");
                     targetCount++;                                              // increase target count
 
                     targetStartMarker = 1;                                      // set LSL targetStartMarker as 1
@@ -304,93 +298,93 @@ public class ExperimentController : MonoBehaviour
             }
         }
 
-        // If trial has at least 2 targets
-        if (e_targetCall1 && !e_targetCall2 && targetTimes.Count > 1)
+        // If 2 targets and proper time, show target 2
+        if (!e_targetCall2 && targetTimes.Count > 1)
         {
             // If timer passes target time [1], show target
             if (generalTimer > targetTimes[1])
             {
-                //Debug.Log("show target 2");
+                Debug.Log("show target");
                 targetApperanceTime.Add(generalTimer);
                 bool finishedShowMethod = m_ExpTrial.ShowTarget();              // destroy and replace distractors with targets
 
                 // Make sure ShowTarget method finished running
                 if (finishedShowMethod)
                 {
-                    targetNumTemp = m_ExpTrial.targetNum;
+                    Debug.Log("finished showing target");
                     targetCount++;                                              // increase target count
 
-                    targetStartMarker = 2;                                      // set LSL targetStartMarker as 1
+                    targetStartMarker = 1;                                      // set LSL targetStartMarker as 1
                     targetShowTimer = 0;                                        // reset targetShowTimer to 0
                     e_targetCall2 = true;                                       // signal target not hidden (target shown)
                 }
             }
         }
 
-        // If trial has at least 3 targets
-        if (e_targetCall1 && e_targetCall2 && !e_targetCall3 && targetTimes.Count > 2)
+        // If 3 targets and proper time, show target 3
+        if (!e_targetCall3 && targetTimes.Count > 2)
         {
             // If timer passes target time [2], show target
             if (generalTimer > targetTimes[2])
             {
-                //Debug.Log("show target 3");
+                Debug.Log("show target");
                 targetApperanceTime.Add(generalTimer);
                 bool finishedShowMethod = m_ExpTrial.ShowTarget();              // destroy and replace distractors with targets
 
                 // Make sure ShowTarget method finished running
                 if (finishedShowMethod)
                 {
-                    targetNumTemp = m_ExpTrial.targetNum;
+                    Debug.Log("finished showing target");
                     targetCount++;                                              // increase target count
 
-                    targetStartMarker = 3;                                      // set LSL targetStartMarker as 1
+                    targetStartMarker = 1;                                      // set LSL targetStartMarker as 1
                     targetShowTimer = 0;                                        // reset targetShowTimer to 0
-                    e_targetCall3 = true;                                        // signal target not hidden (target shown)
+                    e_targetCall3 = true;                                       // signal target not hidden (target shown)
                 }
             }
         }
 
         // If target time has reached max time, hide target (for target #1)
-        if (e_targetCall1 && !e_targetHide1 && targetShowTimer > targetTime)
+        if (e_targetCall1 && !e_targetHide1 && targetShowTimer > targetTime && targetCount == 1)
         {
-            //Debug.Log("hide target 1");
+            Debug.Log("hide target");
             bool finishedHideMethod = m_ExpTrial.HideTarget();
 
             // Make sure HideTarget method finished running
             if (finishedHideMethod)
             {
-                targetNumTemp = 0;
+                Debug.Log("target hidden");
                 targetEndMarker = 1;                                            // set LSL targetEndMarker as 1
                 e_targetHide1 = true;
             }
         }
 
         // If target time has reached max time, hide target (for target #2)
-        if (e_targetCall2 && e_targetHide1 && !e_targetHide2 && targetShowTimer > targetTime)
+        if (e_targetCall2 && !e_targetHide2 && targetShowTimer > targetTime && targetCount == 2)
         {
-            //Debug.Log("hide target 2");
+            Debug.Log("hide target");
             bool finishedHideMethod = m_ExpTrial.HideTarget();
 
             // Make sure HideTarget method finished running
             if (finishedHideMethod)
             {
-                targetNumTemp = 0;
-                targetEndMarker = 2;                                            // set LSL targetEndMarker as 2
+                Debug.Log("target hidden");
+                targetEndMarker = 1;                                            // set LSL targetEndMarker as 1
                 e_targetHide2 = true;
             }
         }
 
         // If target time has reached max time, hide target (for target #3)
-        if (e_targetCall3 && e_targetHide1 && e_targetHide2 && !e_targetHide3 && targetShowTimer > targetTime)
+        if (e_targetCall3 && !e_targetHide3 && targetShowTimer > targetTime && targetCount == 3)
         {
-            //Debug.Log("hide target 3");
+            Debug.Log("hide target");
             bool finishedHideMethod = m_ExpTrial.HideTarget();
 
             // Make sure HideTarget method finished running
             if (finishedHideMethod)
             {
-                targetNumTemp = 0;
-                targetEndMarker = 3;                                            // set LSL targetEndMarker as 3
+                Debug.Log("target hidden");
+                targetEndMarker = 1;                                            // set LSL targetEndMarker as 1
                 e_targetHide3 = true;
             }
         }
@@ -399,6 +393,7 @@ public class ExperimentController : MonoBehaviour
         if (e_trialCall && generalTimer > trialTime)
         {
             m_FlickerManager.StopAllFlicker();                                  // stop flickering elements
+            m_ExpTrial.tempNumTarget = 10;                                       // reset num of targets allowed
 
             trialEndMarker = 1;                                                 // set LSL trialEndMarker to 1
             generalTimer = 0;                                                   // reset the general timer
@@ -409,6 +404,9 @@ public class ExperimentController : MonoBehaviour
 
     void ResponsePhase()
     {
+        generalTimer += Time.deltaTime;
+        DestroyExtra("DistractorClone", 0);                              // constantly check the number of items are constant
+
         if (!e_respCall)
         {
             DestroyClones("DistractorClone");           // destroy central objects (distractors)
@@ -451,18 +449,23 @@ public class ExperimentController : MonoBehaviour
 
                     if (adjustCoherence)
                     {
-                        totalNum = m_AdjustCoherence.AdjustTargetNum(targetCount, resp);
-                        //feedbackGameobjectRef.SetActive(true);                      // activate feedback text
-                        //feedbackRef.text = targetCount.ToString();                  // show targetcount as string input
+                        m_AdjustCoherence.AdjustTargetNum(targetCount, resp, rightDirection, peripheralDirection);
+                        feedbackGameobjectRef.SetActive(true);                      // activate feedback text
+                        feedbackRef.text = targetCount.ToString();                  // show targetcount as string input
+                    }
+                    else
+                    {
+                        feedbackGameobjectRef.SetActive(true);                      // activate feedback text
+                        feedbackRef.text = targetCount.ToString();                  // show targetcount as string input
                     }
 
                     trialNumber++;                                                              // increment trial number by one
 
-                    if (trialNumber != 64 || trialNumber != 128 || trialNumber != 192)       // **hard coded numbers**
-                    {
+                    //if (trialNumber != 64 || trialNumber != 128 || trialNumber != 192)       // **hard coded numbers**
+                    //{
                         trialCounterRef.SetActive(true);                                        // show trial counter
                         m_TrialNumber.UpdateTrialNumber(trialNumber, m_ExpSetup.totalTrials);   // update trial number
-                    }
+                    //}
 
                     e_feedbackCall = true;
                 }
@@ -470,22 +473,23 @@ public class ExperimentController : MonoBehaviour
         }
 
         // Wait to move on from feedback
-        if (e_feedbackCall && Input.GetKeyDown(KeyCode.Space))
+        if (e_feedbackCall && Input.GetKeyDown(KeyCode.Space) && generalTimer > aftereffectTime)
         {
             //if (adjustCoherence)
-            //feedbackGameobjectRef.SetActive(false);
+                feedbackGameobjectRef.SetActive(false);
 
             trialCounterRef.SetActive(false);               // hide trial counter
 
+            generalTimer = 0;
             responseDone = true;
         }
     }
 
     void TrialUpdate()
     {
-        // Breaks between trial blocks
-        if (trialNumber == 64 || trialNumber == 128 || trialNumber == 192)               // **hard coded numbers**
-            recordingSetupDone = false;
+        //// Breaks between trial blocks
+        //if (trialNumber == 64 || trialNumber == 128 || trialNumber == 192)               // **hard coded numbers**
+        //    recordingSetupDone = false;
 
         // Close the experiment out on the last trial
         if (trialNumber == m_ExpSetup.totalTrials)
@@ -580,6 +584,42 @@ public class ExperimentController : MonoBehaviour
 
         if (listClones.Count > maxNum)
             Destroy(listClones[0]);
+    }
+
+    private void SetTotalNum()
+    {
+        // Change coherence
+        if (adjustCoherence)
+        {
+            totalNumRR = m_AdjustCoherence.coherenceNumRR;
+            totalNumLL = m_AdjustCoherence.coherenceNumLL;
+            totalNumRL = m_AdjustCoherence.coherenceNumRL;
+            totalNumLR = m_AdjustCoherence.coherenceNumLR;
+        }
+        else if (!adjustCoherence && coherenceManagerRef != null)   // **hard coded to grab last 10 coherence numbers**
+        {
+            totalNumRR = m_AdjustCoherence.avgNumRR;
+            totalNumLL = m_AdjustCoherence.avgNumLL;
+            totalNumRL = m_AdjustCoherence.avgNumRL;
+            totalNumLR = m_AdjustCoherence.avgNumLR;
+        }
+        else
+        {
+            totalNumRR = 15;
+            totalNumLL = 15;
+            totalNumRL = 15;
+            totalNumLR = 15;
+        }
+
+        // Change TotalNum
+        if (rightDirection && peripheralDirection == "Right")
+            totalNum = totalNumRR;
+        else if (!rightDirection && peripheralDirection == "Left")
+            totalNum = totalNumLL;
+        else if (rightDirection && peripheralDirection == "Left")
+            totalNum = totalNumRL;
+        else if (!rightDirection && peripheralDirection == "Right")
+            totalNum = totalNumLR;
     }
     #endregion
 }

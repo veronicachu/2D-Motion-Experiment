@@ -22,7 +22,8 @@ public class ExpSetup : MonoBehaviour
     public List<GameObject> cueTypes = new List<GameObject>();
     public List<float> frequencies = new List<float>();
 
-    [HideInInspector] public int trialsPerCue;
+    [HideInInspector]
+    public int trialsPerCue;
     [HideInInspector] public bool loadComplete = false;
     
     [HideInInspector]

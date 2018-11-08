@@ -14,7 +14,7 @@ public class TrialNumber : MonoBehaviour {
 
 	public void UpdateTrialNumber (int trialnum, int totalnum)
     {
-        int trialnumtemp = trialnum + 1;
+        int trialnumtemp = trialnum;
         UItext.text = "Trial " + trialnumtemp.ToString() + " of " + totalnum.ToString();
 	}
 }

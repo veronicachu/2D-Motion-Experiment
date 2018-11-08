@@ -10,6 +10,8 @@ public class SpawnPeripheral : MonoBehaviour {
     public int rightNRows;
     public int leftNRows;
 
+    public float lowestX;
+    public float highestX;
     public float lowestY;
     public float highestY;
 
@@ -20,6 +22,8 @@ public class SpawnPeripheral : MonoBehaviour {
     private float leftZ;
     private float rightX;
     private float rightZ;
+    private float downY;
+    private float downZ;
 
     private void Start()
     {
@@ -31,6 +35,22 @@ public class SpawnPeripheral : MonoBehaviour {
 
         rightX = rightWaypoint.transform.position.x;
         rightZ = rightWaypoint.transform.position.z;
+        
+        downY = rightWaypoint.transform.position.y;
+        downZ = rightWaypoint.transform.position.z;
+    }
+
+    public void SpawnUpwardMotion()
+    {
+        // leftward from right side
+        for (int i = 0; i < rightNRows; i++)
+        {
+            float downX = Random.Range(lowestX, highestX);
+
+            GameObject newObject = Instantiate(leftwardObject, new Vector3(downX, downY, rightZ), leftwardObject.transform.rotation);
+            newObject.tag = "FlickerClone";
+            newObject.transform.parent = gameObject.transform;
+        }
     }
 
     public void SpawnLeftwardMotion()
