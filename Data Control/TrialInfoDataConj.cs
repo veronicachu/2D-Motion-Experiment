@@ -3,14 +3,14 @@ using UnityEngine;
 using System.Text;
 using System.IO;
 
-public class TrialInfoData : MonoBehaviour {
+public class TrialInfoDataConj : MonoBehaviour {
 
     StringBuilder csv = new StringBuilder();
     StringBuilder csv2 = new StringBuilder();
     private string expPath;
 
     // Script references
-    private ExpCue expCueRef;
+    private ExpCueConj expCueRef;
     public GameObject rightFlickerObject;
     public GameObject leftFlickerObject;
 
@@ -21,7 +21,7 @@ public class TrialInfoData : MonoBehaviour {
     void Start()
     {
         // Initialize variables
-        expCueRef = GameObject.Find("ExperimentManager").GetComponent<ExpCue>();
+        expCueRef = GameObject.Find("ExperimentManager").GetComponent<ExpCueConj>();
         rightFlickerRef = rightFlickerObject.GetComponent<FlickerMaterial>();
         leftFlickerRef = leftFlickerObject.GetComponent<FlickerMaterial>();
 
@@ -30,9 +30,9 @@ public class TrialInfoData : MonoBehaviour {
         //Debug.Log(expPath);
 
         // Write first line with data information
-        string newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}",
-            "Target Direction", "Right Freq", "Left Freq", "Peripheral Direction", "Total Central Dots",
-            "Number Targets", "Response","Target Times");
+        string newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}",
+            "Target Direction", "Target Shape", "Right Freq", "Left Freq", "Peripheral Direction", 
+            "Total Central Dots","Number Targets", "Response", "Target Times");
         csv.AppendLine(newLine);
     }
 
@@ -49,18 +49,22 @@ public class TrialInfoData : MonoBehaviour {
     public bool WriteData(string peripheralDirection, int nCoherent, int nTargets, int response, List<float> targetTime)
     {
         bool finisedRunning = false;
+        string targName = expCueRef.activeTarget.name;
 
-        // Collects target direction
-        string targDirection = expCueRef.activeTarget.name;
-        targDirection = targDirection.Remove(targDirection.Length - 13);     // remove "Motion_Sphere" at end
-        
+        // Collect target direction
+        char targDirection = targName[0];     // first letter of prefab name should be "L" or "R"
+
+        // Collect target shape
+        int a = targName.Length - 4;
+        string targShape = targName.Substring(a);
+
         // Collect color frequencies in the trial
         string rightFreq = rightFlickerRef.Frequency.ToString();
         string leftFreq = leftFlickerRef.Frequency.ToString();
-        
+
         // Writes a line with target and frequency information
         string newLine = string.Format("{0},{1},{2},{3},{4},{5},{6}",
-            targDirection, rightFreq, leftFreq, peripheralDirection, nCoherent, nTargets, response);
+            targDirection, targShape, rightFreq, leftFreq, peripheralDirection, nCoherent, nTargets, response);
         for (int i = 0; i < targetTime.Count; i++)
         {
             newLine = newLine + "," + targetTime[i].ToString();

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AdjustCoherence : MonoBehaviour {
-
+public class AdjustCoherenceConj : MonoBehaviour
+{
     public int coherenceNumRR;
     public int coherenceNumLL;
     public int coherenceNumRL;
@@ -26,21 +26,22 @@ public class AdjustCoherence : MonoBehaviour {
     private List<int> correctRespListLR = new List<int>();
 
     private GameObject experimentManagerRef;
-    private ExpCue m_ExpCue;
-    private ExpTrial m_ExpTrial;
+    private ExpTrialConj m_ExpTrialConj;
 
-    void Awake() {
+    void Awake()
+    {
         DontDestroyOnLoad(this.gameObject);
     }
 
-    void Start() {
+    void Start()
+    {
         experimentManagerRef = GameObject.Find("ExperimentManager");
-        m_ExpTrial = experimentManagerRef.GetComponent<ExpTrial>();
+        m_ExpTrialConj = experimentManagerRef.GetComponent<ExpTrialConj>();
 
-        coherenceNumRR = m_ExpTrial.targetNum * 2;     // start at 50% coherent motion
-        coherenceNumLL = m_ExpTrial.targetNum * 2;     // start at 50% coherent motion
-        coherenceNumRL = m_ExpTrial.targetNum * 2;     // start at 50% coherent motion
-        coherenceNumLR = m_ExpTrial.targetNum * 2;     // start at 50% coherent motion
+        coherenceNumRR = m_ExpTrialConj.targetNum * 2;     // start at 50% coherent motion
+        coherenceNumLL = m_ExpTrialConj.targetNum * 2;     // start at 50% coherent motion
+        coherenceNumRL = m_ExpTrialConj.targetNum * 2;     // start at 50% coherent motion
+        coherenceNumLR = m_ExpTrialConj.targetNum * 2;     // start at 50% coherent motion
     }
 
     public void AdjustTargetNum(int nTargets, int response, bool rightDirection, string peripheralDirection)

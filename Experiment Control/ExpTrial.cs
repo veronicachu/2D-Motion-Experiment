@@ -12,7 +12,6 @@ public class ExpTrial : MonoBehaviour
 
     public int targetNum;                   // number of target items
     public List<float> rampStep = new List<float>();                  // ramp up/down time spacing
-    //[HideInInspector]
     public int tempNumTarget;
 
     public GameObject rightMotion;          // right motion object
