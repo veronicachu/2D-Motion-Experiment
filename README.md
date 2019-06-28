@@ -25,7 +25,7 @@ Instruction:
 6. Enter the counted number of times the target motion circles increase/return to normal
 7. The correct answer will appear after you give your input
 8. Wait 4 seconds and hit the 'spacebar' key 
-- This wait time is enforced by the program and was implemented to reduce motion aftereffects from affecting the next trial)
+- This wait time is enforced by the program and was implemented to reduce motion aftereffects from affecting the next trial
 9. Repeat the steps above until the end
 
 ### Example Clip:
