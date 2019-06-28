@@ -1,5 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿/// <summary>
+/// Load a scene using the scene's name when 'Enter' key hit
+/// </summary>
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 

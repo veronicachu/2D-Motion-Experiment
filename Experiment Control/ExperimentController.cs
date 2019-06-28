@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -568,7 +567,8 @@ public class ExperimentController : MonoBehaviour
             totalNumRL = m_AdjustCoherence.avgNumRL;
             totalNumLR = m_AdjustCoherence.avgNumLR;
         }
-        else
+
+        if (totalNumRR < 15 || totalNumLL < 15 || totalNumRL < 15 || totalNumLR < 15)
         {
             totalNumRR = 15;
             totalNumLL = 15;
