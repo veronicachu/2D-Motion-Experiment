@@ -24,7 +24,7 @@ Instruction:
 - This increase and return to the initial number of the target motion circles can occur multiple times within the trial
 6. Enter the counted number of times the target motion circles increase/return to normal
 7. The correct answer will appear after you give your input
-8. Wait 4 seconds and hit the 'spacebar' key (this is to reduce motion aftereffects affecting the next trial)
+8. Wait 4 seconds and hit the 'spacebar' key (this wait time is enforced by the program and was implemented to reduce motion aftereffects from affecting the next trial)
 9. Repeat the steps above until the end
 
 ### Example Clip:
