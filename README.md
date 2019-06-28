@@ -1,4 +1,4 @@
-# 2D-Motion-Experiment
+# 2D-Motion Experiment
 ## Unity/C# code to create a 2-D motion experiment
 ### University of California, Irvine
 
