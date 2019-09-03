@@ -11,7 +11,7 @@ Experimental framework (i.e. blocks of randomly selected trials) for a feature-b
 
 ### Experiment Build:
 To run program: 
-- Download from [here](https://drive.google.com/file/d/1oBFmVlUJXW6VR4W1csCfLkVDCUfaZy-r/view?usp=sharing) or go into 'Basic Motion SSVEP' folder
+- Download from [here](https://drive.google.com/file/d/1oBFmVlUJXW6VR4W1csCfLkVDCUfaZy-r/view?usp=sharing) or, if repo downloaded, go into 'Basic Motion SSVEP' folder
 - Open 'Basic Motion SSVEP.exe'.
 
 Instruction:
